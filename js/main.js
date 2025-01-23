@@ -72,6 +72,23 @@ function creatWish(words, ty) {
     };
     container.appendChild(div);
 
+    // 使用 interact.js 实现拖动功能
+    interact(div)
+        .draggable({
+            listeners: {
+                move: function (event) {
+                    var target = event.target;
+                    var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                    var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                    target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+                }
+            }
+        });
+
     console.log("数据 \"", words, "\" 添加成功，该数据type为：", ty);
 
     // 将数据发送至服务器
