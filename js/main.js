@@ -34,6 +34,9 @@ function addCookieData() {
     }
 }
 
+document.addEventListener('touchmove', function(event) {
+    event.preventDefault();
+  }, { passive: false });
 // 创建一个愿望
 function creatWish(words, ty) {
     // 删掉输入框原有内容
@@ -72,7 +75,7 @@ function creatWish(words, ty) {
     };
     container.appendChild(div);
 
-    // 使用 interact.js 实现拖动功能
+    // 拖动功能
     interact(div)
         .draggable({
             listeners: {
@@ -123,7 +126,7 @@ function submitData(words) {
 function getRandom(min, max) { var dec = (max - min); return Math.floor(Math.random() * dec + min) }
 
 // 生成默认愿望
-function init(Callback) {
+function init(Callback = () => { }) {
     $.ajax(
         {
             url: api_url + "/api/getBoxs",
@@ -135,8 +138,9 @@ function init(Callback) {
                     creatWish(data[i].content, 0)
                 }
                 addCookieData()
+                Callback();
             },
-            error: function (err) {},
+            error: function (err) { Callback(); },
             dataType: "json"
         });
 }
@@ -171,7 +175,11 @@ function addMusicPlayer() {
     window.setInterval(function () { document.getElementById('addMusic').style.display = 'none'; }, 350);
 }
 
+var BoxLock = false;
 function reloadBox() {
+    if (BoxLock) return;
+    BoxLock = true;
+
     // 删除document.querySelector(".container")里面的所有内容
     var container = document.querySelector(".container");
     while (container.firstChild) {
@@ -179,5 +187,5 @@ function reloadBox() {
     }
 
     // 重新加载数据
-    init();
+    init(() => { BoxLock = false; });
 }
