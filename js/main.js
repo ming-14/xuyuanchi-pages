@@ -179,7 +179,7 @@ function updateWords(words) {
                 } else {
                     // 删掉输入框原有内容
                     document.getElementById("wish").value = "";
-                    creatWish(txt.value + "/add", 1);
+                    creatWish(words + "/add", 1);
                 }
             }
         },
