@@ -57,7 +57,7 @@ document.addEventListener('touchmove', function (event) {
 function creatWish(words, ty) {
     var div = document.createElement("div");
     // 设置文字
-    div.innerHTML = htmlEscape(words); // 转义下，防止xss
+    div.innerHTML = htmlEscape(words.slice(0, -4)); // 转义下，防止xss
     div.className = "item";
 
     // 点击事件，让下层的盒子成为第一层的盒子
