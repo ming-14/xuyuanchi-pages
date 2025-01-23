@@ -6,6 +6,19 @@ var api_url = 'https://xuanyuanchi.glitch.me'; // 上传数据的url
 var container = document.querySelector(".container");
 var zindex = 1;
 
+// -+--+--+--+--+--+-
+// -+--+--+--+--+--+-
+function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split("?");
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        if (pair[0] == variable) {
+            return pair[1];
+        }
+    }
+}
+
 //传入html字符串源码，进行转码
 function htmlEscape(text) { return text.replace(/[<>"&'/]/g, function (match, pos, originalText) { switch (match) { case "<": return "&lt;"; case ">": return "&gt;"; case "&": return "&amp;"; case "\"": return "&quot;"; case "'": return "&#x27;"; case "/": return "&#x2F;" } }) }
 
@@ -34,14 +47,11 @@ function addCookieData() {
     }
 }
 
-document.addEventListener('touchmove', function(event) {
+document.addEventListener('touchmove', function (event) {
     event.preventDefault();
-  }, { passive: false });
+}, { passive: false });
 // 创建一个愿望
 function creatWish(words, ty) {
-    // 删掉输入框原有内容
-    document.getElementById("wish").value = "";
-
     var div = document.createElement("div");
     // 设置文字
     div.innerHTML = htmlEscape(words); // 转义下，防止xss
@@ -101,9 +111,8 @@ function creatWish(words, ty) {
     }
 }
 
-// 提交数据到服务器
+// 发送数据到服务器
 function submitData(words) {
-    // 发送数据到服务器
     fetch(api_url + "/api/post", {
         method: 'POST',
         headers: {
@@ -145,6 +154,38 @@ function init(Callback = () => { }) {
         });
 }
 
+// 检测权限，执行不同方式
+function updateWords(words) {
+    // 因为要跳转，所以有makeloading
+    makeloading();
+    let VerifyData = getCookie("authentication_answer") ? getCookie("authentication_answer") : "{}";
+    if (VerifyData == "{}") {
+        window.location = "https://ming-14.github.io/cardwall-pages/authentication.html?notifications=2&notifications_content=%E8%AF%B7%E8%BF%9B%E8%A1%8C%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81&__from__=" + escape(window.location) + "&__value__=" + escape(txt.value);
+        return;
+    }
+    $.ajax({
+        url: "https://cardwall-api.glitch.me/" + "/api/check",
+        data: unescape(VerifyData),
+        type: "POST",
+        contentType: "application/json",
+        success: function (response, status) {
+            if (response.code === 200) {
+                removeloading();
+                if (!response.data) {
+                    window.location = "https://ming-14.github.io/cardwall-pages/authentication.html?notifications=2&notifications_content=%E8%AF%B7%E8%BF%9B%E8%A1%8C%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81&__from__=" + escape(window.location) + "&__value__=" + escape(txt.value);
+                } else {
+                    // 删掉输入框原有内容
+                    document.getElementById("wish").value = "";
+                    creatWish(txt.value + "/add", 1);
+                }
+            }
+        },
+        error: function (err) {
+            removeloading();
+        }
+    });
+}
+
 //文本框的回车事件
 var txt = document.querySelector(".txt");
 txt.onkeydown = function (e) {
@@ -152,7 +193,7 @@ txt.onkeydown = function (e) {
         return;
     } else
         if (txt.value) {
-            creatWish(txt.value, 1);
+            updateWords(txt.value);
         }
 }
 
@@ -175,6 +216,7 @@ function addMusicPlayer() {
     window.setInterval(function () { document.getElementById('addMusic').style.display = 'none'; }, 350);
 }
 
+// 刷新盒子，BoxLock是防重刷锁
 var BoxLock = false;
 function reloadBox() {
     if (BoxLock) return;
@@ -189,3 +231,37 @@ function reloadBox() {
     // 重新加载数据
     init(() => { BoxLock = false; });
 }
+
+// 进入界面是检测用户是否有权限上传语录
+// 如果有，把提示词改成当前可以上传语录
+// 如果没有，就改成上传语录（需要验证权限）
+(function () {
+    let VerifyData = getCookie("authentication_answer") ? getCookie("authentication_answer") : "{}";
+    if (VerifyData == "{}") {
+        document.getElementById("wish").placeholder = "上传语录（需要验证权限）";
+        return;
+    }
+    $.ajax({
+        url: "https://cardwall-api.glitch.me" + "/api/check",
+        data: unescape(VerifyData),
+        type: "POST",
+        contentType: "application/json",
+        success: function (response, status) {
+            if (response.code === 200) {
+                removeloading();
+                if (!response.data) {
+                    document.getElementById("wish").placeholder = "上传语录（需要验证权限）";
+                } else {
+                    document.getElementById("wish").placeholder = "当前可以上传语录";
+                }
+            }
+        },
+        error: function (err) {
+        }
+    });
+})();
+
+(function () {
+    // if(getQueryVariable("__value__"))
+    // document.getElementById("wish").value = decodeURIComponent(getQueryVariable("__value__"));
+})();
