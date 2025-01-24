@@ -39,13 +39,13 @@ function addCookieData() {
             // 是否有重复数据
             let IsR = false;
             for (let j = 0; j < wishes.length; ++j) { // 注意这里将变量名i改为j避免冲突
-                if (decodeURIComponent(cookiePair[1]) === wishes[j].content) {
+                if (decodeURIComponent(cookiePair[1].slice(0, -4)) === wishes[j].content) {
                     // 有重复数据
                     IsR = true;
                     break;
                 }
             }
-            if (!IsR) creatWish(decodeURIComponent(cookiePair[1]), 0);
+            if (!IsR) creatWish(decodeURIComponent(cookiePair[1].slice(0, -4)), 0);
         }
     }
 }
@@ -57,7 +57,7 @@ document.addEventListener('touchmove', function (event) {
 function creatWish(words, ty) {
     var div = document.createElement("div");
     // 设置文字
-    div.innerHTML = htmlEscape(words.slice(0, -4)); // 转义下，防止xss
+    div.innerHTML = htmlEscape(words); // 转义下，防止xss
     div.className = "item";
 
     // 点击事件，让下层的盒子成为第一层的盒子
