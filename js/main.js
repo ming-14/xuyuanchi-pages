@@ -39,13 +39,13 @@ function addCookieData() {
             // 是否有重复数据
             let IsR = false;
             for (let j = 0; j < wishes.length; ++j) { // 注意这里将变量名i改为j避免冲突
-                if (decodeURIComponent(cookiePair[1].slice(0, -4)) === wishes[j].content) {
+                if (decodeURIComponent(cookiePair[1]) === wishes[j].content) {
                     // 有重复数据
                     IsR = true;
                     break;
                 }
             }
-            if (!IsR) creatWish(decodeURIComponent(cookiePair[1].slice(0, -4)), 0);
+            if (!IsR) creatWish(decodeURIComponent(cookiePair[1]), 0);
         }
     }
 }
@@ -121,7 +121,7 @@ function submitData(words) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ data: words }),
+        body: JSON.stringify({ data: words+"/add" }),
     })
         .then(response => response.text())
         .then(data => {
@@ -179,7 +179,7 @@ function updateWords(words) {
                 } else {
                     // 删掉输入框原有内容
                     document.getElementById("wish").value = "";
-                    creatWish(words + "/add", 1);
+                    creatWish(words, 1);
                 }
             }
         },
