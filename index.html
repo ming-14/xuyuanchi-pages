@@ -1,6 +1,3 @@
-<!--
-    https://blog.csdn.net/weixin_39233022/article/details/105325086
--->
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -11,55 +8,90 @@
         content="width=device-width, initial-scale=0.5, maximum-scale=0.4, minimum-scale=1.0, user-scalable=yes">
 
     <script src="https://cdn.staticfile.org/jquery/2.2.4/jquery.min.js"></script>
-    <script src="./js/config/wishes.js" type="text/javascript"></script>
+    <script src="https://cdn.staticfile.net/interact.js/1.10.26/interact.min.js"></script>
     <link rel="stylesheet" href="./css/main.css">
     <script src="./js/library/snow/snowy.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="./js/library/snow/snowy.min.css">
     <div class="snow-container"></div>
     <script src="./js/library/mouse-click/mouse-click-love.min.js"></script>
+    <script src="./js/tool.js"></script>
     <script src="./js/library/cookie.min.js"></script>
-    <link href="./css/loading.css" rel="stylesheet" type="text/css">
-    <script src="./js/loading.js"></script>
-    <script src="https://cdn.staticfile.net/interact.js/1.10.26/interact.min.js"></script>
 </head>
 
 <body>
 
-    <p class="tip">Copyright © 2021-2025 Rikka | 因为 Glich 的托管服务终止，所以这个网站可能即将关闭</p>
+    <p class="tip">Copyright © 2021-2025 Rikka | 由于 Glich 的托管服务终止，本站已转为离线模式运作</p>
     <!-- 删除Cookie -->
-    <button onclick="handleClearCookies()" type="button" id="clean" class="Btile">删cookie</button>
-    <button onclick="addMusicPlayer()" type="button" id="addMusic" class="Btile">放首音乐</button>
+    <button onclick="handleClearCookies()" type="button" id="clean" class="Btile">删Cookie</button>
+    <button onclick="addMusicPlayer()" type="button" id="addMusic" class="Btile" style="display:none">放首音乐</button>
     <button onclick="reloadBox();" type="button" id="refresh" class="Btile">刷新</button>
 
-    <!-- 这个空div不能删 -->
     <div class="container">
         <!-- 
-    <div class="item">
-        <p>愿望</p>
-        <span class="close">X</span>
-    </div> 
+        <div class="item">
+            <p>愿望</p>
+            <span class="close">X</span>
+        </div> 
     -->
     </div>
 
-    <!-- 接受用户输入 -->
-    <input type="text" class="txt" id="wish" placeholder="上传语录">
-
+    <input type="text" class="txt" id="wish" style="z-index:9999999999999999" placeholder="你也来试试吧">
 </body>
 
 <!-- 基本Js -->
-<script src="./js/main.js" type="text/javascript"></script>
+<script src="./js/main.js"></script>
+<script src="./js/button.js"></script>
 <!-- 初始化 -->
 <script type="text/javascript">
-    console.log("Api：", api_url);
+	console.log("favicon来源 Douyin—modal_id=7429079237585292596");
 
     (function () {
-        init();
+        if (isOnline()) {
+            console.log("在线服务，" +"Api：" + api_url);
+            wishes = ["Tip：无法连接服务器，已启动本地服务"];
+        }
+        else
+        {
+            console.log("离线服务");
+        }
+    })();
+
+    (function () {
+        // 不允移动界面，防止拖动时误触
+        document.addEventListener('touchmove', function (event) {
+            event.preventDefault();
+        }, { passive: false });
 
         // 浏览器有没有启用Cookie 
         if (check() === false) {
             // 没有启用，将清除Cookie按钮隐藏
             console.log("浏览器没有启用Cookie");
             document.getElementById("clean").style.display = "none";
+        }
+
+        // 加载Box
+        reloadBox();
+    })();
+
+    // 输入框触发事件
+    var upLock = false;
+    (function () {
+        var txt = document.querySelector(".txt");
+        txt.onkeydown = function (e) {
+            if (e.keyCode !== 13) { //判断是否回车
+                return;
+            } else if (txt.value) {
+                if (upLock == true) return;
+                upLock = true;
+                
+                alert("提交语录要Call me，在这里提交不能公开");
+
+                creatWish(txt.value);
+                submitData(txt.value);
+                document.cookie = "data" + getCookieLength().toString() + "=" + txt.value;
+                document.getElementById("wish").value = "";
+            }
+            upLock = false;
         }
     })();
 </script>
